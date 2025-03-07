@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, simpledialog
 from PIL import Image, ImageTk
 from api_client import GeminiAPIClient
 from image_processor import ImageProcessor
@@ -105,12 +105,21 @@ class JournalTranscriberApp:
             transcription = self.api_client.transcribe_image(processed_image)
 
             # Extract date from transcription
-            date_str = extract_date(transcription)
+            try:
+                date_str = extract_date(transcription)
+                output_filename = f"{date_str}.txt"
+            except ValueError:
+                # Ask user for a filename if no date is found
+                self.progress_var.set("No date found in transcription. Waiting for filename...")
+                output_filename = self._prompt_for_filename()
+                if not output_filename:
+                    # User cancelled the dialog
+                    self.progress_var.set("Transcription completed but not saved (no filename provided)")
+                    messagebox.showinfo("Transcription Complete", "Transcription completed but not saved as no filename was provided.")
+                    return
 
             # Save transcription
-            output_filename = f"{date_str}.txt"
             output_path = os.path.join(os.path.dirname(file_path), output_filename)
-
             with open(output_path, 'w') as f:
                 f.write(transcription)
 
@@ -125,5 +134,20 @@ class JournalTranscriberApp:
             self.progress_bar.stop()
             self.transcribe_button.state(['!disabled'])
 
+    def _prompt_for_filename(self):
+        """Prompt the user to enter a filename when no date is found"""
+        filename = tk.simpledialog.askstring(
+            "Filename Required", 
+            "No date found in the transcription.\nPlease enter a name for the output file:",
+            parent=self.root
+        )
+        
+        if filename:
+            # Add .txt extension if not provided
+            if not filename.lower().endswith('.txt'):
+                filename += '.txt'
+            return filename
+        return None
+        
     def mainloop(self):
         self.root.mainloop()

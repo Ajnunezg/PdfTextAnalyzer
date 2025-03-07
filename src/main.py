@@ -46,10 +46,18 @@ def upload_file():
         transcription = api_client.transcribe_image(processed_image)
 
         # Extract date
-        date_str = extract_date(transcription)
-
+        try:
+            date_str = extract_date(transcription)
+            output_filename = f"{date_str}.txt"
+            date_found = True
+        except ValueError:
+            # Use the original filename (without extension) if date not found
+            base_filename = os.path.splitext(filename)[0]
+            output_filename = f"{base_filename}.txt"
+            date_str = None
+            date_found = False
+        
         # Save transcription
-        output_filename = f"{date_str}.txt"
         output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
         with open(output_path, 'w') as f:
             f.write(transcription)
@@ -58,7 +66,8 @@ def upload_file():
             'success': True,
             'transcription': transcription,
             'date': date_str,
-            'output_file': output_filename
+            'output_file': output_filename,
+            'date_found': date_found
         })
 
     except Exception as e:
