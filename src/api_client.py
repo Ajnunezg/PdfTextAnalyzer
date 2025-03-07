@@ -9,7 +9,7 @@ class GeminiAPIClient:
             raise ValueError("GEMINI_API_KEY environment variable not set")
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-pro-vision')
+        self.model = genai.GenerativeModel('gemini-1.5-flash')
 
     def transcribe_image(self, image_path):
         """
