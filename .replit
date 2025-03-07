@@ -28,6 +28,11 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python src/main.py"
+waitForPort = 5000
 
 [deployment]
 run = ["sh", "-c", "python src/main.py"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

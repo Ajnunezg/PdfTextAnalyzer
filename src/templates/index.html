@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal Entry Transcriber</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .preview {
+            max-width: 300px;
+            margin: 20px 0;
+        }
+        #progress {
+            display: none;
+            margin: 20px 0;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+        .success {
+            color: green;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Journal Entry Transcriber</h1>
+        
+        <div>
+            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png">
+            <button onclick="uploadFile()">Transcribe</button>
+        </div>
+
+        <div id="preview"></div>
+        <div id="progress">Processing...</div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const progress = document.getElementById('progress');
+            const result = document.getElementById('result');
+            
+            if (!fileInput.files.length) {
+                result.innerHTML = '<div class="error">Please select a file</div>';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+
+            result.innerHTML = '';
+            progress.style.display = 'block';
+
+            axios.post('/upload', formData)
+                .then(response => {
+                    const data = response.data;
+                    progress.style.display = 'none';
+                    result.innerHTML = `
+                        <div class="success">
+                            <h3>Transcription Complete!</h3>
+                            <p><strong>Date:</strong> ${data.date}</p>
+                            <p><strong>Transcription:</strong></p>
+                            <pre>${data.transcription}</pre>
+                            <p>Saved as: ${data.output_file}</p>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    progress.style.display = 'none';
+                    result.innerHTML = `
+                        <div class="error">
+                            Error: ${error.response?.data?.error || error.message}
+                        </div>
+                    `;
+                });
+        }
+
+        // Preview image before upload
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const preview = document.getElementById('preview');
+            const file = e.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" class="preview">
+                    `;
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>
