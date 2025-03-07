@@ -1,0 +1,24 @@
+
+I want to develop a Python application with the following specific functionalities:
+
+### Core Functionality:
+- **Purpose**: The program will transcribe handwritten journal entries from images into text files, leveraging Google's Gemini API with specialized handwriting OCR capabilities.
+- **GUI**: Provide a clear, intuitive graphical user interface (ideally using libraries such as Tkinter, PyQt, or similar).
+- **Image Upload**: Allow the user to upload single or multiple images (batch processing) through a user-friendly file browser interface integrated into the GUI.
+
+### Image Processing and OCR:
+- **Handwriting OCR**: Specifically optimized for clear and accurate transcription of handwritten text contained in journal entry images.
+- **Gemini API Integration**: Automatically upload the selected images to Google's Gemini API for OCR transcription. Clearly handle API authentication, request errors, and rate limits.
+
+### Output and File Management:
+- **Text Output**: Store the resulting transcription as plain text files (.txt) on the user's local file system.
+- **File Naming Convention**: Each journal entry image includes a clearly labeled date. Extract this date from the OCR-processed text accurately and reliably, then use it as the filename following a consistent format (e.g., `YYYY-MM-DD.txt`). Ensure date validation and standardization to avoid naming conflicts or errors.
+
+### Additional Considerations:
+- Implement robust error-handling mechanisms, providing clear and helpful feedback within the GUI if:
+  - Images cannot be uploaded or are unsupported formats.
+  - The OCR transcription fails or returns inaccurate results.
+  - Dates cannot be properly extracted or are ambiguous.
+- Ensure compatibility with standard image formats (e.g., JPG, PNG, TIFF).
+- Clearly document the code, including instructions for installing dependencies and API credentials setup.
+- Consider potential scalability options, such as handling large batches efficiently and managing API rate limits gracefully.
