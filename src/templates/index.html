@@ -33,12 +33,31 @@
             color: green;
             margin: 10px 0;
         }
+        .api-key-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .api-key-input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Journal Entry Transcriber</h1>
-        
+
+        <div class="api-key-section">
+            <h3>API Configuration</h3>
+            <input type="password" id="apiKey" class="api-key-input" placeholder="Enter your Gemini API Key">
+            <p>You can get your API key from the <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></p>
+        </div>
+
         <div>
             <input type="file" id="fileInput" accept=".jpg,.jpeg,.png">
             <button onclick="uploadFile()">Transcribe</button>
@@ -52,9 +71,15 @@
     <script>
         function uploadFile() {
             const fileInput = document.getElementById('fileInput');
+            const apiKey = document.getElementById('apiKey').value.trim();
             const progress = document.getElementById('progress');
             const result = document.getElementById('result');
-            
+
+            if (!apiKey) {
+                result.innerHTML = '<div class="error">Please enter your Gemini API Key</div>';
+                return;
+            }
+
             if (!fileInput.files.length) {
                 result.innerHTML = '<div class="error">Please select a file</div>';
                 return;
@@ -63,6 +88,7 @@
             const file = fileInput.files[0];
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('api_key', apiKey);
 
             result.innerHTML = '';
             progress.style.display = 'block';
@@ -74,7 +100,7 @@
                     result.innerHTML = `
                         <div class="success">
                             <h3>Transcription Complete!</h3>
-                            <p><strong>Date:</strong> ${data.date}</p>
+                            <p><strong>Date:</strong> ${data.date || 'Not found'}</p>
                             <p><strong>Transcription:</strong></p>
                             <pre>${data.transcription}</pre>
                             <p>Saved as: ${data.output_file}</p>
@@ -95,7 +121,7 @@
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const preview = document.getElementById('preview');
             const file = e.target.files[0];
-            
+
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
