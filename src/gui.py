@@ -7,11 +7,9 @@ from image_processor import ImageProcessor
 from date_extractor import extract_date
 from utils import validate_image_file
 
+
 class JournalTranscriberApp:
     def __init__(self):
-        # Configure tkinter for headless operation
-        os.environ['DISPLAY'] = ':0'
-
         # Initialize the main window
         self.root = tk.Tk()
         self.root.title("Journal Entry Transcriber")
@@ -115,7 +113,8 @@ class JournalTranscriberApp:
                 if not output_filename:
                     # User cancelled the dialog
                     self.progress_var.set("Transcription completed but not saved (no filename provided)")
-                    messagebox.showinfo("Transcription Complete", "Transcription completed but not saved as no filename was provided.")
+                    messagebox.showinfo("Transcription Complete",
+                                        "Transcription completed but not saved as no filename was provided.")
                     return
 
             # Save transcription
@@ -137,17 +136,21 @@ class JournalTranscriberApp:
     def _prompt_for_filename(self):
         """Prompt the user to enter a filename when no date is found"""
         filename = tk.simpledialog.askstring(
-            "Filename Required", 
+            "Filename Required",
             "No date found in the transcription.\nPlease enter a name for the output file:",
             parent=self.root
         )
-        
+
         if filename:
             # Add .txt extension if not provided
             if not filename.lower().endswith('.txt'):
                 filename += '.txt'
             return filename
         return None
-        
+
     def mainloop(self):
         self.root.mainloop()
+
+if __name__ == "__main__":
+    app = JournalTranscriberApp()
+    app.mainloop()
