@@ -14,7 +14,6 @@ app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Initialize components
-api_client = GeminiAPIClient()
 image_processor = ImageProcessor()
 
 @app.route('/')
@@ -30,7 +29,14 @@ def upload_file():
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
 
+    api_key = request.form.get('api_key')
+    if not api_key:
+        return jsonify({'error': 'Gemini API key is required'}), 400
+
     try:
+        # Initialize API client with provided key
+        api_client = GeminiAPIClient(api_key)
+
         # Save uploaded file
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -56,7 +62,7 @@ def upload_file():
             output_filename = f"{base_filename}.txt"
             date_str = None
             date_found = False
-        
+
         # Save transcription
         output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
         with open(output_path, 'w') as f:
@@ -74,9 +80,4 @@ def upload_file():
         return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
-    if not os.getenv("GEMINI_API_KEY"):
-        print("Error: GEMINI_API_KEY environment variable not set")
-        print("Please set your Gemini API key as an environment variable")
-        exit(1)
-
     app.run(host='0.0.0.0', port=5000)
