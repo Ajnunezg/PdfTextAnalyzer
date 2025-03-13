@@ -1,16 +1,11 @@
 import os
 import google.generativeai as genai
 from PIL import Image
-import getpass  # Import the getpass module
 
 class GeminiAPIClient:
-    def __init__(self):
-        api_key = os.getenv("GEMINI_API_KEY")
+    def __init__(self, api_key=None):
         if not api_key:
-            # Prompt the user for the API key
-            api_key = getpass.getpass("Enter your Gemini API key: ")
-            if not api_key:
-                raise ValueError("GEMINI_API_KEY not provided")
+            raise ValueError("Gemini API key is required")
 
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel('gemini-2.0-flash')

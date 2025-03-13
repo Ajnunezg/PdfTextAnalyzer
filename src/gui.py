@@ -7,7 +7,6 @@ from image_processor import ImageProcessor
 from date_extractor import extract_date
 from utils import validate_image_file
 
-
 class JournalTranscriberApp:
     def __init__(self):
         # Initialize the main window
@@ -15,13 +14,20 @@ class JournalTranscriberApp:
         self.root.title("Journal Entry Transcriber")
         self.root.geometry("800x600")
 
-        self.api_client = GeminiAPIClient()
+        self.api_key = ""  # Initialize api_key attribute
+        self.api_client = None  # Initialize api_client to None
         self.image_processor = ImageProcessor()
 
         self._create_widgets()
         self._setup_layout()
 
     def _create_widgets(self):
+        # API Key entry frame
+        self.api_key_frame = ttk.LabelFrame(self.root, text="API Key")
+        self.api_key_var = tk.StringVar()
+        self.api_key_entry = ttk.Entry(self.api_key_frame, textvariable=self.api_key_var, width=50, show="*")  # 'show' masks the input
+        self.api_key_button = ttk.Button(self.api_key_frame, text="Set API Key", command=self._set_api_key)
+
         # File selection frame
         self.file_frame = ttk.LabelFrame(self.root, text="File Selection")
         self.file_path_var = tk.StringVar()
@@ -43,6 +49,11 @@ class JournalTranscriberApp:
         self.transcribe_button.state(['disabled'])
 
     def _setup_layout(self):
+        # API Key layout
+        self.api_key_frame.pack(fill='x', padx=10, pady=5)
+        self.api_key_entry.pack(side='left', padx=5, pady=5)
+        self.api_key_button.pack(side='left', padx=5, pady=5)
+
         # File selection layout
         self.file_frame.pack(fill='x', padx=10, pady=5)
         self.file_path_entry.pack(side='left', padx=5, pady=5)
@@ -60,6 +71,19 @@ class JournalTranscriberApp:
         # Action buttons layout
         self.transcribe_button.pack(pady=10)
 
+    def _set_api_key(self):
+        self.api_key = self.api_key_var.get()
+        if self.api_key:
+            try:
+                # Initialize API client with provided key
+                self.api_client = GeminiAPIClient(api_key=self.api_key)
+                messagebox.showinfo("API Key Set", "Gemini API key has been set.")
+                self.transcribe_button.state(['!disabled'])  # Enable the transcribe button
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+        else:
+            messagebox.showerror("Error", "API Key cannot be empty")
+
     def _browse_file(self):
         file_path = filedialog.askopenfilename(
             filetypes=[("Image files", "*.jpg *.jpeg *.png")]
@@ -70,7 +94,6 @@ class JournalTranscriberApp:
                 validate_image_file(file_path)
                 self.file_path_var.set(file_path)
                 self._update_preview(file_path)
-                self.transcribe_button.state(['!disabled'])
             except ValueError as e:
                 messagebox.showerror("Error", str(e))
 
@@ -86,6 +109,10 @@ class JournalTranscriberApp:
         self.preview_label.image = photo  # Keep a reference
 
     def _transcribe_image(self):
+        if not self.api_client:
+            messagebox.showerror("Error", "Please set the Gemini API key first.")
+            return
+
         file_path = self.file_path_var.get()
         if not file_path:
             messagebox.showerror("Error", "Please select an image file first")
