@@ -6,7 +6,6 @@ from api_client import GeminiAPIClient
 from image_processor import ImageProcessor
 from date_extractor import extract_date
 from utils import validate_image_file
-import sv_ttk
 
 class JournalTranscriberApp:
     def __init__(self):
@@ -15,8 +14,7 @@ class JournalTranscriberApp:
         self.root.title("Journal Entry Transcriber")
         self.root.geometry("800x600")
 
-        # Apply the Sun Valley theme
-        sv_ttk.set_theme("dark")  # Or "light"
+        self._apply_theme()  # Apply custom theme
 
         self.api_key = ""
         self.api_client = None
@@ -24,6 +22,21 @@ class JournalTranscriberApp:
 
         self._create_widgets()
         self._setup_layout()
+
+    def _apply_theme(self):
+        # Create a style
+        self.style = ttk.Style(self.root)
+
+        # Configure steel and orange theme
+        self.root.tk.call("source", "sun_valley/sun-valley.tcl")
+        self.style.theme_use("sun-valley-dark")
+        self.style.configure("TButton", foreground="#FFFFFF", background="#343638")
+        self.style.configure("TLabel", foreground="#FFFFFF", background="#212121")
+        self.style.configure("TLabelframe", foreground="#FFFFFF", background="#212121")
+        self.style.configure("TEntry", foreground="#FFFFFF", background="#343638")
+        self.style.configure("TProgressbar", foreground="#FFFFFF", background="#212121")
+
+        self.root.configure(bg="#212121")  # Set the main background color
 
     def _create_widgets(self):
         # API Key entry frame
@@ -49,11 +62,8 @@ class JournalTranscriberApp:
         self.progress_bar = ttk.Progressbar(self.progress_frame, mode='indeterminate')
 
         # Action buttons
-        self.transcribe_button = ttk.Button(self.root, text="Transcribe", command=self._transcribe_image, style="Accent.TButton")
+        self.transcribe_button = ttk.Button(self.root, text="Transcribe", command=self._transcribe_image)
         self.transcribe_button.state(['disabled'])
-
-        # Theme toggle button
-        self.theme_toggle_button = ttk.Button(self.root, text="Toggle Theme", command=self._toggle_theme)
 
     def _setup_layout(self):
         # API Key layout
@@ -77,9 +87,6 @@ class JournalTranscriberApp:
 
         # Action buttons layout
         self.transcribe_button.pack(pady=10)
-
-        # Theme toggle button layout
-        self.theme_toggle_button.pack(pady=5)
 
     def _set_api_key(self):
         self.api_key = self.api_key_var.get()
@@ -173,15 +180,9 @@ class JournalTranscriberApp:
             return filename
         return None
 
-    def _toggle_theme(self):
-        current_theme = sv_ttk.get_theme()
-        new_theme = "light" if current_theme == "dark" else "dark"
-        sv_ttk.set_theme(new_theme)
-
     def mainloop(self):
         self.root.mainloop()
 
 if __name__ == "__main__":
-    # Create and run the app
     app = JournalTranscriberApp()
     app.mainloop()
